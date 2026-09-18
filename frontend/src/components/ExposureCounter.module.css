@@ -1,0 +1,46 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.amountRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.amount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-exposure);
+  letter-spacing: -0.01em;
+}
+
+.currency {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--accent-exposure);
+  opacity: 0.85;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.sub .num {
+  color: var(--text-secondary);
+}

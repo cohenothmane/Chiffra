@@ -1,0 +1,61 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600;700&display=swap");
+
+:root {
+  --bg-base: #0b1220;
+  --bg-surface: #121b2e;
+  --bg-surface-raised: #1a2540;
+  --border: #26334d;
+  --border-soft: #1d2941;
+
+  --text-primary: #e8ecf4;
+  --text-secondary: #8d9ab8;
+  --text-tertiary: #5b6885;
+
+  --accent-exposure: #ffb020;
+  --accent-exposure-dim: #7a5a1f;
+
+  --status-done: #6b9080;
+  --status-pending: #445069;
+
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}

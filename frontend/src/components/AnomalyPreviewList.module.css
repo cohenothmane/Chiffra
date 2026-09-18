@@ -1,0 +1,79 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headRow th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  padding: 0 8px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.headRow th:first-child {
+  padding-left: 0;
+}
+
+.headRow .amountCol {
+  text-align: right;
+}
+
+.row td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13px;
+}
+
+.row td:first-child {
+  padding-left: 0;
+}
+
+.row:last-child td {
+  border-bottom: none;
+}
+
+.amount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.family {
+  color: var(--text-secondary);
+}
+
+.confidence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confidenceValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.confidenceBar {
+  flex: 1;
+  height: 3px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.confidenceFill {
+  height: 100%;
+  background: var(--text-secondary);
+}

@@ -1,0 +1,89 @@
+.wrap {
+  display: flex;
+  align-items: center;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--status-pending);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.step[data-status="done"] .marker {
+  border-color: var(--status-done);
+  color: var(--status-done);
+  background: rgba(107, 144, 128, 0.12);
+}
+
+.step[data-status="in_progress"] .marker {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.step[data-status="pending"] .name {
+  color: var(--text-tertiary);
+}
+
+.statusLabel {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+}
+
+.connector {
+  flex: 1;
+  height: 1.5px;
+  background: var(--border);
+  margin: 0 12px;
+  min-width: 24px;
+}
+
+.connector[data-filled="true"] {
+  background: var(--status-done);
+}
