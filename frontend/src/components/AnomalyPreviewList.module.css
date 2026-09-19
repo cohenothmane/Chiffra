@@ -3,6 +3,11 @@
   border-collapse: collapse;
 }
 
+.loading {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
 .headRow th {
   text-align: left;
   font-size: 11px;

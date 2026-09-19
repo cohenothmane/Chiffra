@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import * as XLSX from "xlsx";
 import { extractionSchema, type StructuredExtraction } from "./schemas/extraction.schema.js";
 import { getAzureChatModel } from "./llm-client.js";
 
@@ -89,6 +91,78 @@ export async function structureExtraction(
   }
 
   return result.data;
+}
+
+interface ExcelRow {
+  id?: string | null;
+  numero?: string | null;
+  fournisseur?: string | null;
+  ice?: string | null;
+  date?: string | null;
+  compte?: string | null;
+  taux_tva?: number | null;
+  ht?: number | null;
+  tva?: number | null;
+  ttc?: number | null;
+}
+
+export interface ExcelRowResult {
+  rowId: string;
+  result: StructureResult;
+}
+
+/**
+ * Parse un export Excel (tableau structure, colonnes deja nommees —
+ * id/numero/fournisseur/ice/date/taux_tva/ht/tva/ttc dans
+ * export-achats-T2.xlsx) ligne par ligne, SANS passer par le LLM : c'est un
+ * simple mapping colonne -> champ du schema, deterministe, plus rapide et
+ * moins cher qu'une interpretation LLM dont ce format structure n'a pas
+ * besoin. Un fichier peut donc produire plusieurs extractions (une par
+ * ligne), contrairement a structureExtraction qui traite un seul document.
+ */
+export function extractExcelRows(filePath: string): ExcelRowResult[] {
+  // XLSX.readFile n'est pas fiable en import ESM (`import * as XLSX`) selon
+  // l'environnement — meme chemin buffer + XLSX.read deja utilise et
+  // verifie dans ocr/extract.ts pour la lecture Excel.
+  const buffer = readFileSync(filePath);
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) return [];
+
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) return [];
+
+  const rows = XLSX.utils.sheet_to_json<ExcelRow>(sheet, { defval: null });
+
+  return rows.map((row, index) => {
+    const rowId = row.id ?? `ligne_${index + 1}`;
+    const numero = row.numero ?? "";
+
+    const candidate = {
+      tiers: row.fournisseur,
+      date_facture: row.date,
+      montant_ht: row.ht,
+      taux_tva: row.taux_tva,
+      montant_tva: row.tva,
+      montant_ttc: row.ttc,
+      numero_piece: row.numero,
+      ice_fournisseur: row.ice ?? null,
+      ice_client: null,
+      type_document: numero.startsWith("AV-") ? "avoir" : "facture",
+      confiance_extraction: 1,
+    };
+
+    const parsed = extractionSchema.safeParse(candidate);
+    if (!parsed.success) {
+      return { rowId, result: { failed: true, reason: "validation_schema_echouee" } };
+    }
+
+    if (!isAmountConsistent(parsed.data)) {
+      return { rowId, result: { failed: true, reason: "incoherence_montants" } };
+    }
+
+    return { rowId, result: parsed.data };
+  });
 }
 
 // Garde-fou independant du LLM : HT + TVA doit egaler TTC. Une erreur d'OCR

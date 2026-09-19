@@ -11,7 +11,9 @@ export const extractionSchema = z.object({
   taux_tva: z.number(),
   montant_tva: z.number(),
   montant_ttc: z.number(),
-  numero_piece: z.string().min(1),
+  numero_piece: z
+    .string()
+    .regex(/^(FA|AV)-\d{4}-\d{4}$/, "Format attendu FA-YYYY-NNNN ou AV-YYYY-NNNN"),
   ice_fournisseur: z.string().nullable().optional(),
   ice_client: z.string().nullable().optional(),
   type_document: z.enum(["facture", "avoir"]),

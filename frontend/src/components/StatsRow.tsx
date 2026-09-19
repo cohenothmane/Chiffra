@@ -2,12 +2,16 @@ import { ANOMALY_FAMILY_LABELS, type StatsData } from "../types";
 import styles from "./StatsRow.module.css";
 
 interface StatsRowProps {
-  stats: StatsData;
+  stats: StatsData | null;
 }
 
 function StatsRow({ stats }: StatsRowProps) {
+  if (!stats) {
+    return <div className={styles.wrap}>Chargement…</div>;
+  }
+
   const totalAnomalies = Object.values(stats.anomaliesByFamily).reduce(
-    (sum, count) => sum + count,
+    (sum: number, count) => sum + (count ?? 0),
     0,
   );
 
@@ -35,13 +39,13 @@ function StatsRow({ stats }: StatsRowProps) {
       <div className={styles.families}>
         {(Object.entries(stats.anomaliesByFamily) as [
           keyof typeof ANOMALY_FAMILY_LABELS,
-          number,
+          number | null,
         ][]).map(([family, count]) => (
           <div className={styles.family} key={family}>
             <span className={styles.familyLabel}>
               {ANOMALY_FAMILY_LABELS[family]}
             </span>
-            <span className={styles.familyValue}>{count}</span>
+            <span className={styles.familyValue}>{count ?? "—"}</span>
           </div>
         ))}
       </div>

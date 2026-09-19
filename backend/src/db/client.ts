@@ -14,3 +14,12 @@ export const pool = new Pool({
   connectionString,
   ssl: isLocal ? undefined : { rejectUnauthorized: false },
 });
+
+// Le pooler Supabase recycle les connexions idle ; pg emet alors un evenement
+// "error" sur le pool. Sans listener, cette erreur devient une exception non
+// interceptee qui fait planter tout le process (meme au milieu d'un batch
+// qui n'utilisait pas la connexion en question). On la journalise et on
+// laisse le pool remplacer la connexion en interne, comme documente par pg.
+pool.on("error", (err) => {
+  console.error("Erreur pool pg (connexion recyclee par le serveur) :", err.message);
+});

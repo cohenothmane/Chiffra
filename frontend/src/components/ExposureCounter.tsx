@@ -3,11 +3,23 @@ import type { ExposureData } from "../types";
 import styles from "./ExposureCounter.module.css";
 
 interface ExposureCounterProps {
-  data: ExposureData;
+  data: ExposureData | null;
 }
 
 function ExposureCounter({ data }: ExposureCounterProps) {
-  const animatedTotal = useCountUp(data.totalDH);
+  const animatedTotal = useCountUp(data?.totalDH ?? 0);
+
+  if (!data) {
+    return (
+      <div className={styles.wrap}>
+        <span className={styles.label}>Exposition financière totale</span>
+        <div className={styles.amountRow}>
+          <span className={styles.amount}>…</span>
+        </div>
+        <span className={styles.sub}>Chargement…</span>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrap}>

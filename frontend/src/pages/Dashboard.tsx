@@ -5,8 +5,10 @@ import ExposureCounter from "../components/ExposureCounter";
 import ExtractedDocumentsList from "../components/ExtractedDocumentsList";
 import StatsRow from "../components/StatsRow";
 import UploadZone from "../components/UploadZone";
+import { useAnomaliesSummary } from "../hooks/useAnomaliesSummary";
 import { useExtractions } from "../hooks/useExtractions";
 import { useExtractionsSummary } from "../hooks/useExtractionsSummary";
+import { useReconciliationSummary } from "../hooks/useReconciliationSummary";
 import type {
   Anomaly,
   AgentStep,
@@ -16,40 +18,18 @@ import type {
 } from "../types";
 import styles from "./Dashboard.module.css";
 
-// Données mockées — à remplacer par les réponses API/WebSocket réelles.
-// Les valeurs restent cohérentes entre elles (total exposition, décompte
-// d'anomalies par famille, documents traités).
-//
-// "Documents traités" est déjà branché sur l'Ingestor réel (table
-// documents/extractions via useExtractionsSummary). L'exposition financière
-// et les anomalies restent mockées : elles dépendent des agents Reconciler
-// et Auditor, pas encore implémentés — les afficher comme réelles serait
-// trompeur (le total ne serait qu'une somme de factures, pas un risque).
+// Données mockées restantes — à remplacer par les réponses API/WebSocket
+// réelles. "Documents traités" est branché sur l'Ingestor réel (table
+// documents/extractions), l'exposition financière et le rapprochement sur
+// Reconciler, les doublons sur un résumé SQL direct. Les 4 autres familles
+// d'anomalies dépendent de l'Auditor, pas encore implémenté — affichées "—"
+// plutôt qu'un faux zéro (cf. StatsRow).
 
 const MOCK_LOT: LotStatus = {
   lotId: "0847",
   processedAgo: "12 min",
   stepsCompleted: 3,
   stepsTotal: 5,
-};
-
-const MOCK_EXPOSURE: ExposureData = {
-  totalDH: 127400,
-  documentsReconciled: 38,
-  documentsTotal: 42,
-};
-
-const MOCK_STATS: StatsData = {
-  reconciliationRate: 87,
-  documentsProcessed: 38,
-  documentsTotal: 42,
-  anomaliesByFamily: {
-    duplicate: 4,
-    vat_error: 5,
-    out_of_period: 2,
-    unknown_party: 2,
-    abnormal_amount: 1,
-  },
 };
 
 const MOCK_AGENT_STEPS: AgentStep[] = [
@@ -60,26 +40,47 @@ const MOCK_AGENT_STEPS: AgentStep[] = [
   { id: "orchestrator", name: "Orchestrator", status: "pending" },
 ];
 
-const MOCK_ANOMALIES: Anomaly[] = [
-  { id: "a1", amountDH: 38200, family: "vat_error", confidence: 92 },
-  { id: "a2", amountDH: 24750, family: "duplicate", confidence: 88 },
-  { id: "a3", amountDH: 19300, family: "out_of_period", confidence: 76 },
-  { id: "a4", amountDH: 12100, family: "unknown_party", confidence: 81 },
-  { id: "a5", amountDH: 8900, family: "abnormal_amount", confidence: 64 },
-  { id: "a6", amountDH: 6400, family: "vat_error", confidence: 71 },
-  { id: "a7", amountDH: 5300, family: "duplicate", confidence: 69 },
-  { id: "a8", amountDH: 4600, family: "vat_error", confidence: 58 },
-  { id: "a9", amountDH: 3950, family: "duplicate", confidence: 55 },
-  { id: "a10", amountDH: 3900, family: "vat_error", confidence: 52 },
-];
-
 function Dashboard() {
   const { summary } = useExtractionsSummary();
   const { extractions, loading: extractionsLoading, error: extractionsError } = useExtractions();
+  const { summary: reconciliation } = useReconciliationSummary();
+  const { summary: anomaliesSummary } = useAnomaliesSummary();
 
-  const stats: StatsData = summary
-    ? { ...MOCK_STATS, documentsProcessed: summary.succes, documentsTotal: summary.total }
-    : MOCK_STATS;
+  const exposure: ExposureData | null =
+    reconciliation && anomaliesSummary
+      ? {
+          totalDH: anomaliesSummary.totalExpositionDh,
+          documentsReconciled: reconciliation.matched,
+          documentsTotal: reconciliation.total,
+        }
+      : null;
+
+  const stats: StatsData | null =
+    summary && reconciliation
+      ? {
+          reconciliationRate: reconciliation.rate,
+          documentsProcessed: summary.succes,
+          documentsTotal: summary.total,
+          anomaliesByFamily: {
+            duplicate: anomaliesSummary?.totalAnomalies ?? null,
+            vat_error: null,
+            out_of_period: null,
+            unknown_party: null,
+            abnormal_amount: null,
+          },
+        }
+      : null;
+
+  // Anomalie "doublon" = correspondance exacte de clé (tiers + montant +
+  // date), donc confiance pleine (100), pas une estimation probabiliste.
+  const anomalies: Anomaly[] | null = anomaliesSummary
+    ? anomaliesSummary.anomalies.map((a, index) => ({
+        id: `doublon-${index}`,
+        amountDH: a.expositionDh,
+        family: "duplicate" as const,
+        confidence: 100,
+      }))
+    : null;
 
   return (
     <div className={styles.page}>
@@ -96,7 +97,7 @@ function Dashboard() {
       </header>
 
       <section className={styles.hero}>
-        <ExposureCounter data={MOCK_EXPOSURE} />
+        <ExposureCounter data={exposure} />
         <StatsRow stats={stats} />
       </section>
 
@@ -114,7 +115,7 @@ function Dashboard() {
           <div className={styles.sectionTitle}>
             Anomalies les plus coûteuses
           </div>
-          <AnomalyPreviewList anomalies={MOCK_ANOMALIES} />
+          <AnomalyPreviewList anomalies={anomalies} />
         </div>
       </div>
 

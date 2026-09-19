@@ -42,3 +42,39 @@ export async function fetchExtractions(): Promise<ExtractionListItem[]> {
   }
   return response.json();
 }
+
+export interface ReconciliationSummary {
+  matched: number;
+  total: number;
+  rate: number;
+}
+
+export async function fetchReconciliationSummary(): Promise<ReconciliationSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/reconciliation/summary`);
+  if (!response.ok) {
+    throw new Error(`Echec du chargement du resume de rapprochement (${response.status})`);
+  }
+  return response.json();
+}
+
+export interface AnomalySummaryItem {
+  type: "doublon";
+  tiers: string;
+  montantTtc: number;
+  occurrences: number;
+  expositionDh: number;
+}
+
+export interface AnomaliesSummary {
+  totalExpositionDh: number;
+  anomalies: AnomalySummaryItem[];
+  totalAnomalies: number;
+}
+
+export async function fetchAnomaliesSummary(): Promise<AnomaliesSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/anomalies/summary`);
+  if (!response.ok) {
+    throw new Error(`Echec du chargement du resume des anomalies (${response.status})`);
+  }
+  return response.json();
+}

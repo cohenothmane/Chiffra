@@ -13,3 +13,11 @@ ALTER TABLE extractions
   ADD COLUMN IF NOT EXISTS texte_brut TEXT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS documents_filename_key ON documents (filename);
+
+-- source_row_id : quand un seul fichier physique (export-achats-T2.xlsx)
+-- produit plusieurs extractions (une ligne de tableau = une piece), on garde
+-- l'identifiant source de la ligne (ex: "DOC-094") pour tracer d'ou vient
+-- chaque extraction. NULL pour les extractions issues d'un PDF/image (un
+-- document = au plus une extraction, pas d'ambiguite a lever).
+ALTER TABLE extractions
+  ADD COLUMN IF NOT EXISTS source_row_id TEXT;

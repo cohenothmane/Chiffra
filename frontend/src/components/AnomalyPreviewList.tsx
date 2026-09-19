@@ -2,10 +2,14 @@ import { ANOMALY_FAMILY_LABELS, type Anomaly } from "../types";
 import styles from "./AnomalyPreviewList.module.css";
 
 interface AnomalyPreviewListProps {
-  anomalies: Anomaly[];
+  anomalies: Anomaly[] | null;
 }
 
 function AnomalyPreviewList({ anomalies }: AnomalyPreviewListProps) {
+  if (!anomalies) {
+    return <div className={styles.loading}>Chargement…</div>;
+  }
+
   const topFive = [...anomalies]
     .sort((a, b) => b.amountDH - a.amountDH)
     .slice(0, 5);

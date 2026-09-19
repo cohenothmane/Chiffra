@@ -33,7 +33,9 @@ export interface StatsData {
   reconciliationRate: number;
   documentsProcessed: number;
   documentsTotal: number;
-  anomaliesByFamily: Record<AnomalyFamily, number>;
+  // null = famille pas encore detectee par l'Auditor (affichee "—" plutot
+  // qu'un faux zero).
+  anomaliesByFamily: Record<AnomalyFamily, number | null>;
 }
 
 export type AgentStepStatus = "pending" | "in_progress" | "done";
