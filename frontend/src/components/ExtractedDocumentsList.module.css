@@ -1,0 +1,93 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headRow th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  padding: 0 8px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.headRow th:first-child {
+  padding-left: 0;
+}
+
+.headRow .amountCol {
+  text-align: right;
+}
+
+.row td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13px;
+}
+
+.row td:first-child {
+  padding-left: 0;
+}
+
+.row:last-child td {
+  border-bottom: none;
+}
+
+.row[data-status="failed"] td {
+  color: var(--text-tertiary);
+}
+
+.filename {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.tiers {
+  color: var(--text-secondary);
+}
+
+.amount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.date {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  color: var(--text-secondary);
+}
+
+.status {
+  font-size: 11px;
+}
+
+.status[data-status="processed"] {
+  color: var(--status-done);
+}
+
+.status[data-status="failed"] {
+  color: var(--text-tertiary);
+}
+
+.footer {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.footer .num {
+  color: var(--text-secondary);
+}

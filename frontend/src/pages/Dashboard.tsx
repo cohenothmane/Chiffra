@@ -1,8 +1,12 @@
 import AgentTimeline from "../components/AgentTimeline";
 import AnomalyPreviewList from "../components/AnomalyPreviewList";
+import ChatPanel from "../components/ChatPanel";
 import ExposureCounter from "../components/ExposureCounter";
+import ExtractedDocumentsList from "../components/ExtractedDocumentsList";
 import StatsRow from "../components/StatsRow";
 import UploadZone from "../components/UploadZone";
+import { useExtractions } from "../hooks/useExtractions";
+import { useExtractionsSummary } from "../hooks/useExtractionsSummary";
 import type {
   Anomaly,
   AgentStep,
@@ -15,6 +19,12 @@ import styles from "./Dashboard.module.css";
 // Données mockées — à remplacer par les réponses API/WebSocket réelles.
 // Les valeurs restent cohérentes entre elles (total exposition, décompte
 // d'anomalies par famille, documents traités).
+//
+// "Documents traités" est déjà branché sur l'Ingestor réel (table
+// documents/extractions via useExtractionsSummary). L'exposition financière
+// et les anomalies restent mockées : elles dépendent des agents Reconciler
+// et Auditor, pas encore implémentés — les afficher comme réelles serait
+// trompeur (le total ne serait qu'une somme de factures, pas un risque).
 
 const MOCK_LOT: LotStatus = {
   lotId: "0847",
@@ -64,6 +74,13 @@ const MOCK_ANOMALIES: Anomaly[] = [
 ];
 
 function Dashboard() {
+  const { summary } = useExtractionsSummary();
+  const { extractions, loading: extractionsLoading, error: extractionsError } = useExtractions();
+
+  const stats: StatsData = summary
+    ? { ...MOCK_STATS, documentsProcessed: summary.succes, documentsTotal: summary.total }
+    : MOCK_STATS;
+
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
@@ -80,7 +97,7 @@ function Dashboard() {
 
       <section className={styles.hero}>
         <ExposureCounter data={MOCK_EXPOSURE} />
-        <StatsRow stats={MOCK_STATS} />
+        <StatsRow stats={stats} />
       </section>
 
       <section className={styles.section}>
@@ -100,6 +117,20 @@ function Dashboard() {
           <AnomalyPreviewList anomalies={MOCK_ANOMALIES} />
         </div>
       </div>
+
+      <section className={styles.section}>
+        <div className={styles.sectionTitle}>Assistant (Explainer)</div>
+        <ChatPanel />
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.sectionTitle}>Pièces extraites par l'Ingestor (GPT-4.1)</div>
+        <ExtractedDocumentsList
+          extractions={extractions}
+          loading={extractionsLoading}
+          error={extractionsError}
+        />
+      </section>
     </div>
   );
 }

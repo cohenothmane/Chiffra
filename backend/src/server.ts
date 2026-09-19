@@ -2,10 +2,13 @@ import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { pool } from "./db/client.js";
+import { extractionsRoutes, chatRoutes } from "./routes/index.js";
 
 const server = Fastify({ logger: true });
 
 await server.register(cors, { origin: true });
+await server.register(extractionsRoutes);
+await server.register(chatRoutes);
 
 server.get("/health", async (request, reply) => {
   try {

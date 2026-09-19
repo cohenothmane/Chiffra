@@ -1,1 +1,1 @@
-// TODO
+export * from "./extractions.repository.js";
